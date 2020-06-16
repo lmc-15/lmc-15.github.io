@@ -74,20 +74,27 @@
 - 在创建一个 ZooKeeper 客户端对象实例时，可以向构造方法中传入一个默认的 Watcher：
   - 这个 Watcher 将作为整个 ZooKeeper会话期间的默认 Watcher，会一直被保存在**客户端 ZKWatchManager** 的 **defaultWatcher** 中。
   - ZooKeeper 客户端也可以通过 **getData**、**exists** 和 **getChildren** 三个接口来向 ZooKeeper 服务器注册 Watcher
-
 - 一次性
   - 无论服务端还是客户端，**Watcher**被触发，zk会将器清除，所以**Watcher**需要被反复的注册
-
 - 轻量级
   - WatchedEvent 是最小通知单元（通知状态，事件类型，节点路径）
   - 服务端仅仅通知客户端发生了事件，不带具体内容
   - 客户端像服务端传的不是watcher，用boolean类似标记属性，服务端保存当前的连接的SercverCnxn
-
 - **ClientCnxn**:是**Zookeeper **客户端和服务端进行通信和事件通知的主要类。
   - **SendThread**：负责客户端和服务器端的数据通信, 也包括事件信息的传输
   - **EventThread**：主要在客户端回调注册的 Watchers 进行通知处理
+- 首先要有一个main()线程,在main线程中创建Zookeeper客户端，这时就会创建两个线程，一个负责网络连接通信(connet)，一个负责监听(listener)。
+- 通过connect线程将注册的监听事件发送给Zookeeper服务端。
+- 在Zookeeper服务端的注册监听器列表中将注册的监听事件添加到列表中。
+- Zookeeper监听到有数据或路径变化，就会将这个消息发送给listener线程。
 
+### CAP
 
+- C——数据一致性，A——服务可用性，P——服务容错性
+
+- zookeeper通过zab保证数据一致性，多个服务保证服务容错性，如果大于一半节点挂了则会导致网络不可用不能保证服务可用性
+- Eureka Clients上也会缓存服务调用的信息。这就保证了我们微服务之间的互相调用是足够健壮的。针对同一个服务，即使注册中心的不同节点保存的服务提供者信息不尽相同，也并不会造成灾难性的后果。拿到可能不正确的服务实例信息后尝试消费一下。
+- 所以，对于服务发现而言，可用性比数据一致性更加重要——AP胜过CP。
 
 
 
