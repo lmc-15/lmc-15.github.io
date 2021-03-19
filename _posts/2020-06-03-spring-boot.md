@@ -13,4 +13,3 @@
 - 设置main方法的定义类
 - 通过SpringFactoriesLoader加载SpringApplicationRunListeners并实例化
 - 配置当前Spring boot 需要的环境变量
-- 
